@@ -23,7 +23,7 @@ haddocks][haddock] --- more info below!
 [aoc]: https://adventofcode.com/${year}
 [haddock]: https://${github}.github.io/advent-of-code-${year}/
 [advent-of-code-api]: https://hackage.haskell.org/package/advent-of-code-api
-[dev]: https://github.com/${github}/advent-of-code-dev
+[dev]: https://github.com/${github}/advent-of-code2021
 
 [Reflections and Benchmarks][reflections]
 -----------------------------------------

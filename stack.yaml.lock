@@ -11,6 +11,20 @@ packages:
       sha256: 1688c03a530c5eaf1581e1d5104e8481d3b2199ce973eb8599eb64168edc3908
   original:
     hackage: advent-of-code-api-0.2.7.0
+- completed:
+    hackage: constraints-extras-0.3.2.0@sha256:0897821d9d0428f41cf2179b2a8e99e0053e96a98dd39d91a31ab2851052338f,1777
+    pantry-tree:
+      size: 595
+      sha256: 5f2b720724999342f33a52f52f646a33dac9c3ed85853ac10896be882ee3c65b
+  original:
+    hackage: constraints-extras-0.3.2.0@sha256:0897821d9d0428f41cf2179b2a8e99e0053e96a98dd39d91a31ab2851052338f,1777
+- completed:
+    hackage: dependent-sum-0.7.1.0@sha256:0e419237f5b86da3659772afff9cab355c0f8d5b3fdb15a5b30e673d8dc83941,2147
+    pantry-tree:
+      size: 290
+      sha256: 009601e5d33e835c7a384e240c5c6ad12643bce9c54b2a0b07201daee3380e51
+  original:
+    hackage: dependent-sum-0.7.1.0@sha256:0e419237f5b86da3659772afff9cab355c0f8d5b3fdb15a5b30e673d8dc83941,2147
 snapshots:
 - completed:
     size: 532832

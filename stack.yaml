@@ -39,7 +39,8 @@ packages:
 # (e.g., acme-missiles-0.3)
 extra-deps:
 - advent-of-code-api-0.2.7.0
-
+- constraints-extras-0.3.2.0@sha256:0897821d9d0428f41cf2179b2a8e99e0053e96a98dd39d91a31ab2851052338f,1777
+- dependent-sum-0.7.1.0@sha256:0e419237f5b86da3659772afff9cab355c0f8d5b3fdb15a5b30e673d8dc83941,2147
 allow-newer: true
 
 # Override default flag values for local packages and extra-deps

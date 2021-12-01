@@ -59,7 +59,7 @@ input, we found the points that had a total distance of less than 32.  So,
 running on test input, but will be replaced by the "limit" key that test data
 is allowed to manually supply. (See [this file][7btest] for reference.)
 
-[7btest]: https://github.com/mstksg/advent-of-code-dev/blob/master/test-data/2018/07b.txt
+[7btest]: https://github.com/mstksg/advent-of-code2021/blob/master/test-data/2018/07b.txt
 
 It is common to want to use certain common "utility" functions between
 different tests.  For this, you can add them to the `AOC.Common` module, and
@@ -68,7 +68,7 @@ these will be loaded as a part of `AOC.Prelude`.
 Configuration
 ------------
 
-When you run the `aoc-dev` executable for the first time, it will generate a
+When you run the `aoc2021` executable for the first time, it will generate a
 default configuration file at `./aoc-conf.yaml`.  At the moment, the
 configuration contains two fields:
 
@@ -92,7 +92,7 @@ The *[AOC.Run.Interactive][interactive]* module has code (powered by
 GHCI, so you don't have to re-compile. If you edit your solution programs, they
 are automatically updated when you hit `:r` in ghci.
 
-[interactive]: https://mstksg.github.io/advent-of-code-dev/AOC-Run-Interactive.html
+[interactive]: https://mstksg.github.io/advent-of-code2021/AOC-Run-Interactive.html
 
 ```haskell
 ghci> execSolution_   $ solSpec 'day02a  -- get answer for challenge based on solution
@@ -111,15 +111,15 @@ work.  If they aren't, you can manually specify the day and part, by using
 Executable
 ----------
 
-Comes with test examples given in problems.  The executable is named `aoc-dev`
+Comes with test examples given in problems.  The executable is named `aoc2021`
 by default, but it is recommended that you change the name (in `package.yaml`)
 based on whatever year you are attempting.
 
 ```
-$ aoc-dev --help
-aoc-dev - Advent of Code 2020 challenge runner
+$ aoc2021 --help
+aoc2021 - Advent of Code 2020 challenge runner
 
-Usage: aoc-dev [-c|--config PATH] COMMAND
+Usage: aoc2021 [-c|--config PATH] COMMAND
    Run, test, bench, challenges from Advent of Code, and view prompts.
    Available days: 1, 2, 3 (...)
 
@@ -135,7 +135,7 @@ Available commands:
   bench                    Alias for run --bench
   countdown                Alias for view --countdown
 
-$ aoc-dev run 3 b
+$ aoc2021 run 3 b
 >> Day 03b
 >> [✓] 243
 ```
@@ -143,7 +143,7 @@ $ aoc-dev run 3 b
 You can supply input via stdin with `--stdin`:
 
 ```
-$ aoc-dev run 1 --stdin
+$ aoc2021 run 1 --stdin
 >> Day 01a
 +1
 +2
@@ -158,7 +158,7 @@ $ aoc-dev run 1 --stdin
 Benchmarking is implemented using *criterion*
 
 ```
-$ aoc-dev bench 2
+$ aoc2021 bench 2
 >> Day 02a
 benchmarking...
 time                 1.317 ms   (1.271 ms .. 1.392 ms)
@@ -179,7 +179,7 @@ Test suites run the example problems given in the puzzle description, and
 outputs are colorized in ANSI terminals.
 
 ```
-$ aoc-dev test 1
+$ aoc2021 test 1
 >> Day 01a
 [✓] (3)
 [✓] (3)
@@ -197,7 +197,7 @@ $ aoc-dev test 1
 [✓] 56752
 ```
 
-This should only work if you're running `aoc-dev` in the project directory.
+This should only work if you're running `aoc2021` in the project directory.
 
 **To run on actual inputs**, the executable expects inputs to be found in the
 folder `data/XX.txt` in the directory you are running in.  That is, the input
@@ -219,7 +219,7 @@ You can view prompts: (use `--countdown` to count down until a prompt is
 released, and display immediately)
 
 ```
-$ aoc-dev view 3 b
+$ aoc2021 view 3 b
 >> Day 03b
 --- Part Two ---
 ----------------
@@ -238,7 +238,7 @@ claims are made.
 You can also submit answers:
 
 ```
-$ aoc-dev submit 1 a
+$ aoc2021 submit 1 a
 ```
 
 Submissions will automatically run the test suite.  If any tests fail, you will
@@ -251,5 +251,5 @@ case you change your solution.
 All networking features are powered by *[advent-of-code-api][]*.
 
 Note also that `stack test`, `stack bench`, `cabal test`, `cabal bench`, etc.
-are all convenient aliases of `aoc-dev test all` and `aoc-dev bench all`.  This
+are all convenient aliases of `aoc2021 test all` and `aoc2021 bench all`.  This
 can be useful continuous integration purposes.

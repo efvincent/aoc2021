@@ -33,7 +33,7 @@ main = do
     inputCache <- newIORef Nothing
     O{..} <- execParser $ info (parseOpts inputCache <**> helper)
                 ( fullDesc
-               <> header "aoc-dev - Advent of Code interactive development environment"
+               <> header "aoc2021 - Advent of Code interactive development environment"
                <> progDesc ("Run, test, bench, challenges from Advent of Code, and view prompts. Available days: " ++ availableDays)
                 )
     cfg <- configFile $ fromMaybe defConfPath _oConfig
