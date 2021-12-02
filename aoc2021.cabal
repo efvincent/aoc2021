@@ -47,6 +47,7 @@ common common-options
                      , pandoc
                      , parser-combinators
                      , profunctors
+                     , split
                      , tagsoup
                      , template-haskell
                      , text
