@@ -49,7 +49,7 @@ day03a = MkSol
     , sSolve = Just . solve1
     }
 
-day03b :: _ :~> _
+day03b :: [[Bool]] :~> Int
 day03b = MkSol
     { sParse = Just . map (map (== '1')) . lines
     , sShow  = show
