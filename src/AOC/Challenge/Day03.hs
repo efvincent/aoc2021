@@ -1,7 +1,4 @@
-module AOC.Challenge.Day03 (
-    day03a
-  , day03b
-  ) where
+module AOC.Challenge.Day03 (day03a, day03b) where
 
 import AOC.Solver ( (:~>)(..) )
 

@@ -1,11 +1,8 @@
 {-# LANGUAGE LambdaCase #-}
 
-module AOC.Challenge.Day02 (
-    day02a
-  , day02b
-  ) where
+module AOC.Challenge.Day02 (day02a, day02b) where
 
-import AOC.Prelude ( (:~>)(..) )
+import AOC.Solver ( (:~>)(..) )
 import Data.List.Split (splitOn)
 
 type Instr = (Char,Int)

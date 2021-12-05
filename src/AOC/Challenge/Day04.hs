@@ -1,11 +1,6 @@
 {-# LANGUAGE TupleSections #-}
 
-module AOC.Challenge.Day04
-  (
-    day04a
-  , day04b
-  ) 
-  where
+module AOC.Challenge.Day04 (day04a, day04b) where
 
 import AOC.Solver ( (:~>)(..) )
 import Data.List.Split (splitOn)

@@ -1,12 +1,6 @@
-{-# OPTIONS_GHC -Wno-unused-imports   #-}
-{-# OPTIONS_GHC -Wno-unused-top-binds #-}
+module AOC.Challenge.Day01 (day01a, day01b) where
 
-module AOC.Challenge.Day01 (
-    day01a
-  , day01b
-  ) where
-
-import AOC.Prelude ( (:~>)(..) )
+import AOC.Solver ( (:~>)(..) )
 
 -- | Look at a rolling slice of 2 elements in the array, comparing first
 -- and second, acc a counter whenever second is larger than first 
