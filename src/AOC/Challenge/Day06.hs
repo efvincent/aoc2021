@@ -6,6 +6,13 @@ import AOC.Solver ( (:~>)(..) )
 import Data.IntMap as IM (insert, empty, (!), elems, delete, mapKeys, updateWithKey)
 import Data.List.Split (splitOn)
 
+-- | Builds an @IntMap Int@ with indexes @0..8@, where the index is the number 
+-- of iterations until the count down hits zero and the fish "times out", and the 
+-- value is the number of fish at that count down. Then at each step, value at 
+-- key @0@ is held as the number of fish that have @timedOut@, that pair is
+-- removed from the map, and all the indexes are decremented. The @timedOut@ value is
+-- added to index @6@, and also becomes the new value at index @8@. Continue this
+-- for the number of days requested, and at the end, sum the total of all the counts
 solve :: Int -> [Int] -> Int
 solve days nums =
   go 0 countDowns
