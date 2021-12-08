@@ -7,13 +7,13 @@ On to the Advent of Code 2021
 
 |       | Title                   | Prompt 1 | Prompt 2 | Code | 
 |-------|-------------------------|:--------:|:--------:|:----:|
-| [Day 1](#day-1--sonar-sweep) | Sonar Sweep   | [x](./prompt/01a.txt) | [x](./prompt/01b.txt) | [x](./src/AOC/Challenge/Day01.hs) |
-| Day 2 | Dive!                   | [x](./prompt/02a.txt) | [x](./prompt/02b.txt) | [x](./src/AOC/Challenge/Day02.hs) |
-| Day 3 | Binary Diagnostic       | [x](./prompt/03a.txt) | [x](./prompt/03b.txt) | [x](./src/AOC/Challenge/Day03.hs) |
-| Day 4 | Giant Squid             | [x](./prompt/04a.txt) | [x](./prompt/04b.txt) | [x](./src/AOC/Challenge/Day04.hs) |
-| Day 5 | Hydrothermal Venture    | [x](./prompt/05a.txt) | [x](./prompt/05b.txt) | [x](./src/AOC/Challenge/Day05.hs) |
-| Day 6 | Lanternfish             | [x](./prompt/06a.txt) | [x](./prompt/06b.txt) | [x](./src/AOC/Challenge/Day06.hs) |
-| Day 7 | The Treachery of Whales | [x](./prompt/06a.txt) | [x](./prompt/06b.txt) | [x](./src/AOC/Challenge/Day06.hs) |
+| [Day 1](#day-1--sonar-sweep) | Sonar Sweep   | [x](./prompt/01a.md) | [x](./prompt/01b.md) | [x](./src/AOC/Challenge/Day01.hs) |
+| Day 2 | Dive!                   | [x](./prompt/02a.md) | [x](./prompt/02b.md) | [x](./src/AOC/Challenge/Day02.hs) |
+| Day 3 | Binary Diagnostic       | [x](./prompt/03a.md) | [x](./prompt/03b.md) | [x](./src/AOC/Challenge/Day03.hs) |
+| Day 4 | Giant Squid             | [x](./prompt/04a.md) | [x](./prompt/04b.md) | [x](./src/AOC/Challenge/Day04.hs) |
+| Day 5 | Hydrothermal Venture    | [x](./prompt/05a.md) | [x](./prompt/05b.md) | [x](./src/AOC/Challenge/Day05.hs) |
+| Day 6 | Lanternfish             | [x](./prompt/06a.md) | [x](./prompt/06b.md) | [x](./src/AOC/Challenge/Day06.hs) |
+| Day 7 | The Treachery of Whales | [x](./prompt/06a.md) | [x](./prompt/06b.md) | [x](./src/AOC/Challenge/Day06.hs) |
 
 ---
 
@@ -24,7 +24,6 @@ On to the Advent of Code 2021
 ### Part One
 A simple rolling slice of two elements of the list of inputs, comparing the first and second. The
 accumulator is incremented whenever the second is larger than the first. 
-
 
 #### Techniques
 * Use of the internal `go` function, which I found last year during AoC seems to be a common way to name an internal looping recursive function.
@@ -38,6 +37,15 @@ solve1 = go 0
     go n _ = n 
 ```
 
+### Part Two
+This is just a bit more complex than part 1, requiring that we look at the sum of a three element rolling
+window, carrying the last three element sum forward. If the previous exists (ie we're at least at the forth element) 
+and it's less than the current, then we increment the accumulator. Either way we carry forward a new previous.
+
+#### Techniques
+* Since the previous might not exist, we use a `Maybe Int` where `Nothing` indicatest there is no previous window of three elements, and `Just p` means there is a previous.
+* We pattern match using `(a:b:c:rest)` which will only match a list with at least three elements.
+* `go` uses pattern matching to define one case where there are at least three elements, and a second definition handles any other case. When there are not at least three elements, we return `n` the accumulated answer
 ```haskell
 solve2 :: [Int] -> Int
 solve2 = go 0 Nothing
