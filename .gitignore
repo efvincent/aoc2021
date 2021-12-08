@@ -1,7 +1,6 @@
 .stack-work/
 *~
 /data
-/prompt
 /aoc-conf.yaml
 /logs
 /bench-out
