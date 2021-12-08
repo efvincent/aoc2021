@@ -1,43 +1,40 @@
-{-# OPTIONS_GHC -Wno-unused-imports   #-}
-{-# OPTIONS_GHC -Wno-unused-top-binds #-}
+module AOC.Challenge.Day07 (day07a, day07b) where
 
--- |
--- Module      : AOC.Challenge.Day07
--- License     : BSD3
---
--- Stability   : experimental
--- Portability : non-portable
---
--- Day 7.  See "AOC.Solver" for the types used in this module!
---
--- After completing the challenge, it is recommended to:
---
--- *   Replace "AOC.Prelude" imports to specific modules (with explicit
---     imports) for readability.
--- *   Remove the @-Wno-unused-imports@ and @-Wno-unused-top-binds@
---     pragmas.
--- *   Replace the partial type signatures underscores in the solution
---     types @_ :~> _@ with the actual types of inputs and outputs of the
---     solution.  You can delete the type signatures completely and GHC
---     will recommend what should go in place of the underscores.
+import AOC.Solver ( (:~>)(..) )
+import Data.List (sort)
+import Data.List.Split (splitOn)
 
-module AOC.Challenge.Day07 (
-    -- day07a
-  -- , day07b
-  ) where
+type CostFn = Int -> [Int] -> Int
 
-import           AOC.Prelude
+-- | cost is simple difference in position and candidate position
+cost1 :: CostFn
+cost1 candidate = 
+  sum . map (\pos -> abs (pos - candidate))
 
-day07a :: _ :~> _
+-- | cost is simple cost, plus the value described by the @\c1@ function
+-- which accounts for each step in the cost increasing in value by one
+cost2 :: CostFn
+cost2 candidate = 
+  sum . map ((\c1 -> c1 + ((c1 * c1) - c1) `div` 2) . (\pos -> abs (pos - candidate)))
+
+-- | brute force solution for both parts A and B, where we just check each possible
+-- candidate and choose the one with the lowest total cost. I'm sure there's a less
+-- heavy handed approach, but this got the job done with less brain math hurt.
+-- Note the use of the section technique in @map (`costFn` xs)@, which is the equiv
+-- of @map (flip costFn xs)@, but I find more readable
+solve :: CostFn -> [Int] -> Maybe Int
+solve costFn xs = Just . minimum . map (`costFn` xs) $ [(head xs)..(last xs)]
+
+day07a :: [Int] :~> Int
 day07a = MkSol
-    { sParse = Just
+    { sParse = Just . sort . map read . splitOn ","
     , sShow  = show
-    , sSolve = Just
+    , sSolve = solve cost1
     }
 
-day07b :: _ :~> _
+day07b :: [Int] :~> Int
 day07b = MkSol
-    { sParse = Just
+    { sParse = Just . sort . map read . splitOn ","
     , sShow  = show
-    , sSolve = Just
+    , sSolve = solve cost2
     }
