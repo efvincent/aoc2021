@@ -1,5 +1,3 @@
-{-# OPTIONS_GHC -Wno-type-defaults #-}
-
 module AOC.Challenge.Day05 (day05a, day05b) where
 
 import AOC.Solver ( (:~>)(..) )
