@@ -1,9 +1,17 @@
+module Main (main) where
 
-import           AOC
-import           Control.Monad.Except
-import           Data.Semigroup
-import           System.Exit
-import           Text.Printf
+import AOC.Run
+    ( defaultMRO,
+      mainRun,
+      withColor,
+      MainRunOpts(_mroTest),
+      TestSpec(TSAll) )
+import AOC.Run.Config ( configFile, defConfPath )
+import Control.Monad.Except
+    ( MonadError(throwError), when, runExceptT )
+import Data.Semigroup ( Sum(Sum) )
+import System.Exit ( exitFailure )
+import Text.Printf ( printf )
 import qualified System.Console.ANSI  as ANSI
 
 main :: IO ()
