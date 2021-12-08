@@ -7,7 +7,7 @@ On to the Advent of Code 2021
 
 |       | Title                   | Prompt 1 | Prompt 2 | Code | 
 |-------|-------------------------|:--------:|:--------:|:----:|
-| [Day 1](#day-1) | Sonar Sweep   | [x](./prompt/01a.txt) | [x](./prompt/01b.txt) | [x](./src/AOC/Challenge/Day01.hs) |
+| [Day 1](#day-1--sonar-sweep) | Sonar Sweep   | [x](./prompt/01a.txt) | [x](./prompt/01b.txt) | [x](./src/AOC/Challenge/Day01.hs) |
 | Day 2 | Dive!                   | [x](./prompt/02a.txt) | [x](./prompt/02b.txt) | [x](./src/AOC/Challenge/Day02.hs) |
 | Day 3 | Binary Diagnostic       | [x](./prompt/03a.txt) | [x](./prompt/03b.txt) | [x](./src/AOC/Challenge/Day03.hs) |
 | Day 4 | Giant Squid             | [x](./prompt/04a.txt) | [x](./prompt/04b.txt) | [x](./src/AOC/Challenge/Day04.hs) |
