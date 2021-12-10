@@ -18,24 +18,31 @@ s = "be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb | fdgacbe cefdb 
 {-
 algo
 
-step 1 - search by counts to find 1 7 4 8
-  c(2) -> d1        -- read as "count of 2 yields 1"
-  c(3) -> d7
-  c(4) -> d4
-  c(7) -> d8
+step 1 - search by length of set to find 1 7 4 8
+  |x| ≡ 2 ⊢ x ≡ d1        
+  |x| ≡ 3 ⊢ x ≡ d7
+  |x| ≡ 4 ⊢ x ≡ d4
+  |x| ≡ 7 ⊢ x ≡ d8
+  
+  known: |d2 d7 d4 d8|
 
 step 2 - find by length of intersection with known through step 1
-         read "l(x ⋂ d7)" as length of intersection of x and the seven digit
-  l(x ⋂ d1) == 1 && l(x ⋂ d7) == 2 && l(x ⋂ d4) == 2 -> d2
-  l(x ⋂ d1) == 2 && l(x ⋂ d7) == 3 && l(x ⋂ d4) == 4 -> d9
+  |x ⋂ d1| ≡ 1 ∧ |x ⋂ d7| ≡ 2 ∧ |x ⋂ d4| ≡ 2 ⊢ x ≡ d2
+  |x ⋂ d1| ≡ 2 ∧ |x ⋂ d7| ≡ 3 ∧ |x ⋂ d4| ≡ 4 ⊢ x ≡ d9
+
+  known: |d1 d2 d4 d7 d8 d9|
 
 step 3 - find by length of intersection with known through step 2
-  l(x ⋂ d1) == 1 && l(x ⋂ d7) == 2 && l(x ⋂ d4) == 3 && l(x ⋂ d2) == 3 -> d5
-  l(x ⋂ d1) == 1 && l(x ⋂ d7) == 2 && l(x ⋂ d4) == 3 && l(x ⋂ d2) == 4 -> d6
+  |x ⋂ d1| ≡ 1 ∧ |x ⋂ d7| ≡ 2 ∧ |x ⋂ d4| ≡ 3 ∧ |x ⋂ d2| ≡ 3 ⊢ x ≡ d5
+  |x ⋂ d1| ≡ 1 ∧ |x ⋂ d7| ≡ 2 ∧ |x ⋂ d4| ≡ 3 ∧ |x ⋂ d2| ≡ 4 ⊢ x ≡ d6
 
+  known: |d1 d2 d4 d5 d6 d7 d8 d9|
+  
 step 4 - find by length of intersection with known through step 3
-  l(x ⋂ d1) == 2 && l(x ⋂ d7) == 3 && l(x ⋂ d4) == 3 && l(x ⋂ d6) == 4 -> d3
-  l(x ⋂ d1) == 2 && l(x ⋂ d7) == 3 && l(x ⋂ d4) == 3 && l(x ⋂ d6) == 5 -> d0
+  |x ⋂ d1| ≡ 2 ∧ |x ⋂ d7| ≡ 3 ∧ |x ⋂ d4| ≡ 3 ∧ |x ⋂ d6| ≡ 4 ⊢ x ≡ d3
+  |x ⋂ d1| ≡ 2 ∧ |x ⋂ d7| ≡ 3 ∧ |x ⋂ d4| ≡ 3 ∧ |x ⋂ d6| ≡ 5 ⊢ x ≡ d0
+
+  known: |d1 d2 d3 d4 d5 d6 d7 d8 d9 d0|
 
 The order of evaluation should be according to these steps. For each candidate as we
 determine what d# it is, that set of "wires" should be added to map of d# to Set(wires)
