@@ -4,7 +4,7 @@ import AOC.Solver ((:~>) (..))
 
 -- | converts a list of bools interpreted as a binary number into an Int
 bToi :: [Bool] -> Int
-bToi = foldr (\x y -> fromEnum x + 2 * y) 0
+bToi = foldr (\bit acc -> fromEnum bit + 2 * acc) 0
 
 -- | returns the number of elements needed to make a majority in a list
 majority :: [_] -> Int
@@ -13,17 +13,17 @@ majority vs =
   (l `div` 2) + (l `mod` 2)
 
 -- | returns true if the majority of elements at position idx in each element of
--- a list of lists pass the predicate
-colWise :: (a -> Bool) -> [[a]] -> Int -> Bool
-colWise predicate xs idx =
-  (>= majority xs) . length . filter predicate . map (!! idx) $ xs
+-- a list of lists is true
+colWise :: [[a]] -> Int -> Bool
+colWise xs idx =
+  (>= majority xs) . length . filter id . map (!! idx) $ xs
 
 solve1 :: [[Bool]] -> Int
 solve1 values =
   bToi g * bToi e
   where
     l = (length . head $ values) - 1
-    g = map (colWise id values) [l, (l -1) .. 0]
+    g = map (colWise values) [l, (l -1) .. 0]
     e = map not g
 
 solve2 :: [[Bool]] -> Int
