@@ -57,8 +57,8 @@ solve1 (h, d) = \case
 The strategy for parsing the input is typical, I won't describe parsing in detail beyond this point unless some interesting parsing is required. In this case we split the lines into a list of strings, and for each string we build a tuple of the first character of the instruction and the amount, appending to a list. 
 
 #### Techniques
-* In the `parse` function, by appending to the head of the list we need to reverse the final list. This is an inefficiency but we're not looking for optimal performance, just reasonable performance, and in this case I find this approach cannonical and readable.
-* The final case of `go` in `parse` throws and error. We don't expect this to happen, as we know the format of the input and it will always have one of the two initial `go` cases. But to satisfy GHC's desire to have all cases handled, we explicitly create the case to handle the unexpected scenario.
+* In the `parse` function, by appending to the head of the list we need to reverse the final list. This is an inefficiency but we're not looking for optimal performance, just reasonable performance, and in this case I find this approach canonical and readable.
+* The final case of `go` in `parse` throws an error. We don't expect this to happen, as we know the format of the input and it will always have one of the two initial `go` cases. But to satisfy GHC's desire to have all cases handled, we explicitly create the case to handle the unexpected scenario.
 * Note the use of the `{-# LANGUAGE LambdaCase #-}` [language extension](https://wiki.haskell.org/Language_extensions). This allows for a more compact case syntax that enables you to write a case statement for the implied last parameter of the function. This is very similar to the [`function` keyword](https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/match-expressions) in F#. See [this example](https://riptutorial.com/haskell/example/5689/lambdacase) for a more detailed explanation.
 
 ### Part 2
