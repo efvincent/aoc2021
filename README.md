@@ -8,7 +8,7 @@ On to the Advent of Code 2021
 |       | Title                   | Prompt 1 | Prompt 2 | Code | 
 |-------|-------------------------|:--------:|:--------:|:----:|
 | [Day 1](#day-1--sonar-sweep) | Sonar Sweep   | [x](./prompt/01a.md) | [x](./prompt/01b.md) | [x](./src/AOC/Challenge/Day01.hs) |
-| Day 2 | Dive!                   | [x](./prompt/02a.md) | [x](./prompt/02b.md) | [x](./src/AOC/Challenge/Day02.hs) |
+| [Day 2](#day-2--dive) | Dive!  | [x](./prompt/02a.md) | [x](./prompt/02b.md) | [x](./src/AOC/Challenge/Day02.hs) |
 | Day 3 | Binary Diagnostic       | [x](./prompt/03a.md) | [x](./prompt/03b.md) | [x](./src/AOC/Challenge/Day03.hs) |
 | Day 4 | Giant Squid             | [x](./prompt/04a.md) | [x](./prompt/04b.md) | [x](./src/AOC/Challenge/Day04.hs) |
 | Day 5 | Hydrothermal Venture    | [x](./prompt/05a.md) | [x](./prompt/05b.md) | [x](./src/AOC/Challenge/Day05.hs) |
@@ -16,6 +16,64 @@ On to the Advent of Code 2021
 | Day 7 | The Treachery of Whales | [x](./prompt/06a.md) | [x](./prompt/06b.md) | [x](./src/AOC/Challenge/Day06.hs) |
 
 ---
+
+## Day 2 : Dive!
+
+[Prompt](./prompt/02a.md) / [Code](./src/AOC/Challenge/Day01.hs)
+
+### Part 1
+In day 2's *Dive!* challenge, we're given a series of instructions for navigating our submarine, as shown in the sample data:
+
+```
+forward 5
+down 5
+forward 8
+up 3
+down 8
+forward 2
+```
+We define a type to describe an instruction, and one for the current position. The _forward_ instruction increases horizontal position, _up_ and _down_ effect depth, so have a type to track position. It's then a matter of folding over the instructions accumulating the effect on position.
+
+```haskell
+type Instr = (Char, Int)
+
+type Pos = (Int, Int)
+
+parse :: String -> [Instr]
+parse s = go [] (map (splitOn " ") . lines $ s)
+  where
+    go ins [] = reverse ins
+    go ins ([dir, v] : rest) = go ((head dir, read v) : ins) rest
+    go _ _ = error "Bad input"
+
+solve1 :: Pos -> [Instr] -> Int
+solve1 (h, d) = \case
+  ('f', n) : rest -> solve1 (h + n, d) rest
+  ('d', n) : rest -> solve1 (h, d + n) rest
+  ('u', n) : rest -> solve1 (h, d - n) rest
+  _ -> h * d
+```
+
+The strategy for parsing the input is typical, I won't describe parsing in detail beyond this point unless some interesting parsing is required. In this case we split the lines into a list of strings, and for each string we build a tuple of the first character of the instruction and the amount, appending to a list. 
+
+#### Techniques
+* In the `parse` function, by appending to the head of the list we need to reverse the final list. This is an inefficiency but we're not looking for optimal performance, just reasonable performance, and in this case I find this approach cannonical and readable.
+* The final case of `go` in `parse` throws and error. We don't expect this to happen, as we know the format of the input and it will always have one of the two initial `go` cases. But to satisfy GHC's desire to have all cases handled, we explicitly create the case to handle the unexpected scenario.
+* Note the use of the `{-# LANGUAGE LambdaCase #-}` [language extension](https://wiki.haskell.org/Language_extensions). This allows for a more compact case syntax that enables you to write a case statement for the implied last parameter of the function. This is very similar to the [`function` keyword](https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/match-expressions) in F#. See [this example](https://riptutorial.com/haskell/example/5689/lambdacase) for a more detailed explanation.
+
+### Part 2
+
+In part 2 the interpretation of the instruction changes. Rather than up and down directly effecting the depth, they effect what the puzzle describes as the _aim_. Aim effects depth whenever the sub moves horizontally. For each horizontal unit moved, depth is moved that many units multiplied by aim.
+
+```haskell
+solve2 :: Int -> Pos -> [Instr] -> Int
+solve2 a (h, d) = \case
+  ('f', n) : rest -> solve2 a (h + n, d + (a * n)) rest
+  ('d', n) : rest -> solve2 (a + n) (h, d) rest
+  ('u', n) : rest -> solve2 (a - n) (h, d) rest
+  _ -> h * d
+```
+To implement this, we need to track aim as another parameter of the `solve2` function. As we fold over the instructions we'll adjust aim when we see up / down instructions. Parsing is the same for part 2 as for part 1, as it has been so far and how we endeavor for it to be for each day in AoC.
 
 ## Day 1 : Sonar Sweep
 
@@ -38,6 +96,9 @@ solve1 = go 0
 ```
 
 ### Part Two
+
+[Prompt](./prompt/01a.md)
+
 This is just a bit more complex than part 1, requiring that we look at the sum of a three element rolling
 window, carrying the last three element sum forward. If the previous exists (ie we're at least at the forth element) 
 and it's less than the current, then we increment the accumulator. Either way we carry forward a new previous.
