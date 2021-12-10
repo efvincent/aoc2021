@@ -9,17 +9,129 @@ On to the Advent of Code 2021
 |-------|-------------------------|:--------:|:--------:|:----:|
 | [Day 1](#day-1--sonar-sweep) | Sonar Sweep   | [x](./prompt/01a.md) | [x](./prompt/01b.md) | [x](./src/AOC/Challenge/Day01.hs) |
 | [Day 2](#day-2--dive) | Dive!  | [x](./prompt/02a.md) | [x](./prompt/02b.md) | [x](./src/AOC/Challenge/Day02.hs) |
-| Day 3 | Binary Diagnostic       | [x](./prompt/03a.md) | [x](./prompt/03b.md) | [x](./src/AOC/Challenge/Day03.hs) |
+| [Day 3](#day-3--binary-diagnostic) | Binary Diagnostic       | [x](./prompt/03a.md) | [x](./prompt/03b.md) | [x](./src/AOC/Challenge/Day03.hs) |
 | Day 4 | Giant Squid             | [x](./prompt/04a.md) | [x](./prompt/04b.md) | [x](./src/AOC/Challenge/Day04.hs) |
 | Day 5 | Hydrothermal Venture    | [x](./prompt/05a.md) | [x](./prompt/05b.md) | [x](./src/AOC/Challenge/Day05.hs) |
 | Day 6 | Lanternfish             | [x](./prompt/06a.md) | [x](./prompt/06b.md) | [x](./src/AOC/Challenge/Day06.hs) |
 | Day 7 | The Treachery of Whales | [x](./prompt/06a.md) | [x](./prompt/06b.md) | [x](./src/AOC/Challenge/Day06.hs) |
 
 ---
+## Day 3 : Binary Diagnostic
+
+[Prompt](./prompt/03a.md) / [Code](.src/AOC/Challenge/Day03.hs)
+
+For day 3, we find our submarine in need of some diagnostics, which can only be found by decoding a cryptic series of binary digits. Because of course!
+
+The first diagnostic we need is the power consumption which we find by multiplying a *gamma rate* by an *epsilon rate*. Gamma is found by finding the most common bit in the correspoinding position of all the numbers in the diagnostic, and epsilon is found by finding the least common bit in each position.
+
+```
+  00100
+  11110
+  10110
+  10111
+```
+
+In this truncated example, the most common bit in the first position is `1`, in the second is `0`, etc., for a gamma output of `10110`. Epsilon is the logical not of each bit since its looking for the least common. 
+
+```haskell
+solve1 :: [[Bool]] -> Int
+solve1 values =
+  bToi g * bToi e
+  where
+    l = (length . head $ values) - 1
+    g = map (colWise values) [l, (l -1) .. 0]
+    e = map not g
+```
+
+The algorithm I used for part 1 is to determine the bits in gamma, then the bits in epsilon, then convert them to integers and multiply them. Gamma is found by mapping a list from `l` to `0` where `l` is the largest index of one of the lines. In our sample, `l` would be 4. For each of these indexes, we get the most common bit at that position across all values by "pivoting" the list of lists and using the index as a column index. The result is a list of most common bits.
+
+```haskell
+colWise :: [[Bool]] -> Int -> Bool
+colWise xs idx =
+  (>= majority xs) . length . filter id . map (!! idx) $ xs
+```
+The `colWise` function takes a list of lists of Bool `[[a]]` and maps each of the member lists `[a]` with the function `(!! idx)`, which changes the list to value of the member of the list at index `idx`. The `filter` function filters the list to only where the predicate is true. The predicate we're using is `id`, which just returns the value.
+
+Since each value in the list is a boolean, filter eliminates all the `False` values, leaving the number of `True` values. Next
+
+Epsilon is the inverse of epsilon, so we can `map not` across gamma. Finally the `bToi` function converts both the gamma and epsilon bits to `Int`s. We multiply these together to solve part 1!
+
+```haskell
+bToi :: [Bool] -> Int
+bToi = foldr (\bit acc -> fromEnum bit + 2 * acc) 0
+```
+The `foldr` function is a right associative fold which traverses from left to right (see the [docs](https://hackage.haskell.org/package/base-4.16.0.0/docs/Prelude.html#v:foldr) for deeper explanation). The folding function starts the accumulator at `0` and uses `fromEnum` to convert the bit to an integer and apply the logic to accumulate the integer from the list of bits. In this function `acc` is the accumulator.
+
+#### Techniques
+**Generating a list** from start and endpoints where the "step" is not 1 has a strange syntax in Haskell compared to other languages. You need to indicate the first value, _and the second value_, and then the elipsis and the last value: `[l, (l - 1) .. 0]`
+
+**Function composition:** A very common technique in Haskell is to _compose_ two functions together to create a new function. You see this in a few different plces. In `solve1`, the value of `l` is given as ```l = (length . head $ values) - 1``` 
+
+The function `head :: [a] -> a` returns the first element in a list, and `length :: [a] -> Int` returns the length of a list. The composition function has type 
+
+```haskell
+(.) :: (b -> c) -> (a -> b) -> a -> c
+```
+
+Which looks daunting, but all it's saying is take a function `b -> c` and second function `a -> b`, and return a function `a -> c`. It does this by taking the output of the second function and feeding it to the first function. Imagine we had these functions:
+
+```haskell
+buyFood :: Money -> Ingredients
+makePizza :: Ingredients -> Food
+rateFood :: Person -> Food -> Rating
+```
+
+A conventional approach to calling these might look like this
+
+```javascript
+var funds = 100
+var ingredients = buyFood(funds)
+var pizza = makePizza(ingredients)
+var rating = rateFood("Giacomo", pizza)
+console.log(rating)
+```
+
+This creates a bunch of temporary variables. Or you could do this:
+
+```javascript
+console.log(rateFood("Giacomo", makePizza(buyFood(funds))))
+```
+Better. But not great. In Haskell, you'd likely see this (ignore that `log` probably does I/O for now):
+
+```haskell
+log . rateFood "Giacomo" . makePizza . buyFood $ funds
+```
+The functions are "composed" together. The output of `buyFood` is the input to `makePizza`, and the output of that is the input to `rateFood "Giacomo"`. Keep in mind that `rateFood` takes both a person (string) and a `Food`. Thanks to partial function application, the expression `rateFood "Giacomo"` results in a new function that has the type `Food -> Rating`, and that is composed with the output of `makePizza`. You still have to read this from right to left, but this becomes second nature, and function composition is useful for other reasons as well.
+
+### Part 2
+
+That was a lot of "technique"... anyway, part 2 has us seeking the _life support rating_ and the _oxygen generator rating_. I'll not be retyping the entire description, have a look at the [prompt](./prompt/03b.md). The solution:
+
+```haskell
+solve2 :: [[Bool]] -> Int
+solve2 values =
+  let ox = go id 0 values in
+  let co = go not 0 values in
+  ox * co
+  where
+    go :: (Bool -> Bool) -> Int -> [[Bool]] -> Int
+    go f i xs =
+      let predicate v = 
+            (== (v !! i)) 
+            . f 
+            . (>= majority xs) 
+            . length 
+            . filter (!! i) $ xs in
+        
+      case filter predicate xs of
+        [bs] -> bToi . reverse $ bs
+        bss  -> go f (i + 1) bss
+```
+At this point, if you read the prompt you should be able to figure out what part 2 is doing... I'm off to get some dinner! 😄
 
 ## Day 2 : Dive!
 
-[Prompt](./prompt/02a.md) / [Code](./src/AOC/Challenge/Day01.hs)
+[Prompt](./prompt/02a.md) / [Code](./src/AOC/Challenge/Day02.hs)
 
 ### Part 1
 In day 2's *Dive!* challenge, we're given a series of instructions for navigating our submarine, as shown in the sample data:
