@@ -14,7 +14,7 @@ majority vs =
 
 -- | returns true if the majority of elements at position idx in each element of
 -- a list of lists is true
-colWise :: [[a]] -> Int -> Bool
+colWise :: [[Bool]] -> Int -> Bool
 colWise xs idx =
   (>= majority xs) . length . filter id . map (!! idx) $ xs
 
