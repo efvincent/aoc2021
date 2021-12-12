@@ -1,24 +1,14 @@
-{-# OPTIONS_GHC -Wno-unused-imports   #-}
-{-# OPTIONS_GHC -Wno-unused-top-binds #-}
 {-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
 
 module AOC.Challenge.Day08 where -- (day08a, day08b) where
 
 import AOC.Solver ( (:~>)(..) )
-import Data.List (sort)
-import Data.IntMap as IM (IntMap, (!), empty, insert, lookup, fromList, elems, delete, toList)
-import Data.Map as M (Map, (!), empty, insert, toList, fromList)
-import Data.Set as S (Set, empty, fromList, member, intersection, toList)
+import Data.IntMap as IM (IntMap, (!), empty, insert, fromList, elems, delete, toList)
+import Data.Map as M ((!), fromList)
+import Data.Set as S (Set, fromList, member, intersection)
 import Data.List.Split (splitOn)
 import AOC.Util (strip)
-import Control.Monad ( foldM )
 import Data.Tuple (swap)
-
-sample :: String
-sample = "be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb | fdgacbe cefdb cefbgd gcbe\nedbfga begcd cbg gc gcadebf fbgde acbgfd abcde gfcbed gfec | fcgedb cgb dgebacf gc\nfgaebd cg bdaec gdafb agbcfd gdcbef bgcad gfac gcb cdgabef | cg cg fdcagb cbg\nfbegcd cbd adcefb dageb afcb bc aefdc ecdab fgdeca fcdbega | efabcd cedba gadfec cb\naecbfdg fbg gf bafeg dbefa fcge gcbea fcaegb dgceab fcbdga | gecf egdcabf bgf bfgea\nfgeab ca afcebg bdacfeg cfaedg gcfdb baec bfadeg bafgc acf | gebdcfa ecba ca fadegcb\ndbcfg fgd bdegcaf fgec aegbdf ecdfab fbedc dacgb gdcebf gf | cefg dcbef fcge gbcadfe\nbdfegc cbegaf gecbf dfcage bdacg ed bedf ced adcbefg gebcd | ed bcgafe cdgba cbgef\negadfb cdbfeg cegd fecab cgb gbdefca cg fgcdab egfdb bfceg | gbdfcae bgc cg cgb\ngcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce"
-
-sample2 :: [Char]
-sample2 = "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
 {-
 algo
 
@@ -62,106 +52,122 @@ determine what d# it is, that set of "wires" should be added to map of d# to Set
 so it will be available for the next test
 -}
 
--- tests :: [Int]
--- tests = [1,7,4,8,2,9,5,6,3,0]
-
 type Digit = S.Set Char
 
 type DigitMap = IM.IntMap Digit
 
 type Puzzles = [Puzzle]
 
-type Decoder = Int -> DecoderState -> DecoderState
+type Decoder = Int -> DState -> DState
 
-data DecoderState = DecoderState
+data DState = DState
   { _unk :: DigitMap
   , _known :: DigitMap
   } deriving stock (Show)
 
 data Puzzle = Puzzle
-  { _state :: DecoderState
-  , _input :: DigitMap
+  { _state :: DState
+  , _input :: [Digit]
   } deriving stock (Show)
 
-decodeByLen :: Int -> Decoder
-decodeByLen lenSought idSought d@DecoderState{_unk=unk, _known=known} =
+-- | totally not needed use of intersection symbol
+(⋂) :: Ord a => Set a -> Set a -> Set a
+(⋂) = S.intersection
+
+-- | parse one line consisting of 10 observations and an encoded 4 digit number
+parseLine :: String -> Puzzle
+parseLine s =
+  let [obs,ins] = map (map S.fromList . splitOn " " . strip) . splitOn "|" $ s in
+  Puzzle { 
+    _state = DState { 
+      _unk = IM.fromList . zip [0..] $ obs, 
+      _known = IM.empty }, 
+    _input = ins }
+
+-- | Solves part 1 by finding the number of encoded digits across all the puzzle
+-- lines that are uniquely identified by the number of segments in the digit
+solveLine1 :: Puzzle -> Int
+solveLine1 p =
+  let targets = S.fromList [2,3,4,7] in
+  length . filter (`S.member` targets) . map length . _input $ p
+
+-- | Identifies the @idSought@ digit by finding the unkown digit with the specified
+-- length. This is a partial function in that it assumes that what you're asking
+-- for exists in the unknowns
+findByLen :: Int -> Decoder
+findByLen lenSought idSought d@DState{_unk=unk, _known=known} =
   go (IM.toList unk)
   where
-    go ((unkId, unkBits):_) 
-      | length unkBits == lenSought = 
+    go ((unkId, unkBits):_)
+      | length unkBits == lenSought =
         d { _unk=IM.delete unkId unk , _known=IM.insert idSought unkBits known }
     go (_:rest) = go rest
     go [] = d
 
-decodeByComp :: [(Int, Int)] -> Decoder
-decodeByComp comparisons idSought d@DecoderState{_unk=unk, _known=known} =
-  go comparisons (IM.toList unk)
+-- | Identifies the @idSought@ digit by testing that each pair in @specs@ 
+-- tests true. For one of these pairs to test true, the @fst@ indexes a known 
+-- digit, and the @snd@ is the expected length of the ⋂ of the candidate 
+-- unknown digit and the indexed known digit. Importantly, when an unknown 
+-- digit is found, it's removed from the unknown digit map as well as
+-- being added to the known digit map in the current decoder state
+findBySpec :: [(Int, Int)] -> Decoder
+findBySpec specs idSought d@DState{_unk=unk, _known=known} =
+  go specs (IM.toList unk)
   where
-    match :: Digit -> Digit -> Int -> Bool
-    match s1 s2 l = length (s1 `S.intersection` s2) == l
-
     test :: Digit -> [(Int, Int)] -> Bool
-    test unkBits ((compId, iLen):rest) 
-      | match unkBits (known IM.! compId) iLen = test unkBits rest
+    test unkBits ((compId, iLen):rest)
+      | length (unkBits ⋂ (known IM.! compId)) == iLen = 
+        test unkBits rest
     test _ (_:_) = False
     test _ [] = True
 
-    go :: [(Int, Int)] -> [(Int, Digit)] -> DecoderState
-    go comps ((unkId, unkBits):_) | test unkBits comps = 
-      d { _unk=IM.delete unkId unk, _known=IM.insert idSought unkBits known }
+    go :: [(Int, Int)] -> [(Int, Digit)] -> DState
+    go comps ((unkId, unkBits):_) 
+      | test unkBits comps =
+        d { _unk=IM.delete unkId unk, _known=IM.insert idSought unkBits known }
     go comps (_:rest) = go comps rest
-    go _ [] = d 
+    go _ [] = d
 
-decode :: Puzzle -> DecoderState
+-- | Finds the unknown digits by first identifying the unknown digits that can be
+-- identified by the number of segments, then finds them using the known relationships
+-- between remaining unknown digits and the ever growning number of known digits
+decode :: Puzzle -> DState
 decode =
-  decodeByComp [(6,5)] 0 .
-  decodeByComp [(6,4)] 3 .
-  decodeByComp [(1,1),(7,2),(2,4)] 6 .
-  decodeByComp [(1,1),(7,2),(2,3)] 5 .
-  decodeByComp [(1,2),(7,3),(4,4)] 9 .
-  decodeByComp [(1,1),(7,2),(4,2)] 2 .
-  decodeByLen 7 8 .
-  decodeByLen 3 7 .
-  decodeByLen 4 4 .
-  decodeByLen 2 1 . _state
+  findBySpec [(6,5)] 0 .
+  findBySpec [(6,4)] 3 .
+  findBySpec [(1,1),(7,2),(2,4)] 6 .
+  findBySpec [(1,1),(7,2),(2,3)] 5 .
+  findBySpec [(1,2),(7,3),(4,4)] 9 .
+  findBySpec [(1,1),(7,2),(4,2)] 2 .
+  findByLen 7 8 .
+  findByLen 3 7 .
+  findByLen 4 4 .
+  findByLen 2 1 . _state
 
-solveLinePart2 :: Puzzle -> Int
-solveLinePart2 p =
-  foldr (\(x,y) acc -> (x * y) + acc) 0 npairs
+-- | solves part 2 by fully decoding the 4 digits in the input, and interpreting them
+-- as an integer
+solveLine2 :: Puzzle -> Int
+solveLine2 p@Puzzle{ _input=inp } =
+  sum . zipWith (*) [1000,100,10,1] $ digits 
   where
     known = M.fromList . map swap . IM.toList . _known . decode $ p
-    inp =   map snd . IM.toList . _input $ p
-    digits :: [Int] = map (known M.!) inp
-    npairs = digits `zip` ([1000,100,10,1]::[Int])
+    digits = map (known M.!) inp
 
-parseLine :: String -> Puzzle
-parseLine s =
-  let [obs,ins] = map toDigits . splitOn "|" $ s in
-  Puzzle { _state = DecoderState { _unk = obs, _known = IM.empty }, _input = ins}
-  where
-    toDigits :: String -> DigitMap = IM.fromList . zip [0..] . map S.fromList . splitOn " " . strip
-
-parse :: String -> [Puzzle]
-parse = map parseLine . lines
-
-solveLinePart1 :: Puzzle -> Int
-solveLinePart1 p =
-  let targets = S.fromList [2,3,4,7] in
-  length . filter (`S.member` targets) . map length . IM.elems . _input $ p
-
+-- | uses a line solver @(Puzzle -> Int)@ to solve all the puzzles, summing up each
+-- puzzle's solution to give the overall solution
 solve :: (Puzzle -> Int) -> Puzzles -> Int
 solve fn = sum . map fn
 
 day08a :: Puzzles :~> Int
 day08a = MkSol
-  { sParse = Just . parse
+  { sParse = Just . map parseLine . lines
   , sShow  = show
-  , sSolve = Just . solve solveLinePart1
+  , sSolve = Just . solve solveLine1
   }
 
 day08b :: Puzzles :~> Int
 day08b = MkSol
-  { sParse = Just . parse
+  { sParse = Just . map parseLine . lines
   , sShow  = show
-  , sSolve = Just . solve solveLinePart2
+  , sSolve = Just . solve solveLine2
   }
