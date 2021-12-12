@@ -1,38 +1,53 @@
 {-# OPTIONS_GHC -Wno-unused-imports   #-}
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
 
--- |
--- Module      : AOC.Challenge.Day09
--- License     : BSD3
---
--- Stability   : experimental
--- Portability : non-portable
---
--- Day 9.  See "AOC.Solver" for the types used in this module!
---
--- After completing the challenge, it is recommended to:
---
--- *   Replace "AOC.Prelude" imports to specific modules (with explicit
---     imports) for readability.
--- *   Remove the @-Wno-unused-imports@ and @-Wno-unused-top-binds@
---     pragmas.
--- *   Replace the partial type signatures underscores in the solution
---     types @_ :~> _@ with the actual types of inputs and outputs of the
---     solution.  You can delete the type signatures completely and GHC
---     will recommend what should go in place of the underscores.
+module AOC.Challenge.Day09 where -- (day09a, day09b) where
 
-module AOC.Challenge.Day09 (
-    -- day09a
-  -- , day09b
-  ) where
+import AOC.Solver ( (:~>)(..) )
+import Data.IntMap as IM (IntMap, (!), fromList, empty, insert, fromList, delete, toList, size)
+import Data.List.Split (splitOn)
+import AOC.Util (strip)
 
-import           AOC.Prelude
+type Grid = IM.IntMap (IM.IntMap Int)
 
-day09a :: _ :~> _
+data Puzzle = Puzzle
+  { _grid :: Grid
+  , _maxx :: Int
+  , _maxy :: Int
+  } deriving stock (Show)
+
+s = "2199943210\n3987894921\n9856789892\n8767896789\n9899965678"
+
+mkIdx :: [a] -> IntMap a
+mkIdx = IM.fromList . ([0..] `zip`)
+
+parse :: String -> Puzzle
+parse s =
+  Puzzle g (IM.size (g!0) - 1) (IM.size g - 1)
+  where
+    g :: Grid = mkIdx . map (mkIdx . map (read . (:[]))) . lines $ s
+
+get :: Grid -> (Int,Int) -> Int
+get g (x,y) = g!y!x
+
+solve1 :: Puzzle -> Int
+solve1 Puzzle{_grid=g, _maxx=mx, _maxy=my} =
+  sum . map ((+ 1) . get g) . filter predicate $ idxs
+  where
+    idxs = [(x,y) | x <- [0..mx], y <- [0..my] ]
+    predicate (x,y) =
+      let v = get g (x,y) in
+      let w = x <= 0  || get g (x-1,y) > v in
+      let e = x >= mx || get g (x+1,y) > v in
+      let s = y >= my || get g (x,y+1) > v in
+      let n = y <= 0  || get g (x,y-1) > v in
+      n && s && e && w
+
+day09a :: Puzzle :~> Int
 day09a = MkSol
-    { sParse = Just
+    { sParse = Just . parse
     , sShow  = show
-    , sSolve = Just
+    , sSolve = Just . solve1
     }
 
 day09b :: _ :~> _
