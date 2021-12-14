@@ -7,13 +7,20 @@ On to the Advent of Code 2021
 
 |       | Title                   | Prompt 1 | Prompt 2 | Code | 
 |-------|-------------------------|:--------:|:--------:|:----:|
-| [Day 1](#day-1--sonar-sweep) | Sonar Sweep   | [x](./prompt/01a.md) | [x](./prompt/01b.md) | [x](./src/AOC/Challenge/Day01.hs) |
-| [Day 2](#day-2--dive) | Dive!  | [x](./prompt/02a.md) | [x](./prompt/02b.md) | [x](./src/AOC/Challenge/Day02.hs) |
-| [Day 3](#day-3--binary-diagnostic) | Binary Diagnostic       | [x](./prompt/03a.md) | [x](./prompt/03b.md) | [x](./src/AOC/Challenge/Day03.hs) |
-| Day 4 | Giant Squid             | [x](./prompt/04a.md) | [x](./prompt/04b.md) | [x](./src/AOC/Challenge/Day04.hs) |
-| Day 5 | Hydrothermal Venture    | [x](./prompt/05a.md) | [x](./prompt/05b.md) | [x](./src/AOC/Challenge/Day05.hs) |
-| Day 6 | Lanternfish             | [x](./prompt/06a.md) | [x](./prompt/06b.md) | [x](./src/AOC/Challenge/Day06.hs) |
-| Day 7 | The Treachery of Whales | [x](./prompt/06a.md) | [x](./prompt/06b.md) | [x](./src/AOC/Challenge/Day06.hs) |
+| [Day 1](#day-1--sonar-sweep)       | Sonar Sweep   | [x](./prompt/01a.md) | [x](./prompt/01b.md) | [x](./src/AOC/Challenge/Day01.hs) |
+| [Day 2](#day-2--dive) | Dive!      | [x](./prompt/02a.md) | [x](./prompt/02b.md) | [x](./src/AOC/Challenge/Day02.hs) |
+| [Day 3](#day-3--binary-diagnostic) | Binary Diagnostic    | [x](./prompt/03a.md) | [x](./prompt/03b.md) | [x](./src/AOC/Challenge/Day03.hs) |
+| Day 4 | Giant Squid                | [x](./prompt/04a.md) | [x](./prompt/04b.md) | [x](./src/AOC/Challenge/Day04.hs) |
+| Day 5 | Hydrothermal Venture       | [x](./prompt/05a.md) | [x](./prompt/05b.md) | [x](./src/AOC/Challenge/Day05.hs) |
+| Day 6 | Lanternfish                | [x](./prompt/06a.md) | [x](./prompt/06b.md) | [x](./src/AOC/Challenge/Day06.hs) |
+| Day 7 | The Treachery of Whales    | [x](./prompt/07a.md) | [x](./prompt/06b.md) | [x](./src/AOC/Challenge/Day07.hs) |
+| Day 8 | Seven Segment Search       | [x](./prompt/08a.md) | [x](./prompt/06b.md) | [x](./src/AOC/Challenge/Day08.hs) |
+| Day 9 | Smoke Basin                | [x](./prompt/09a.md) |                      | [x](./src/AOC/Challenge/Day09.hs) |
+| Day 10| | | | |
+| Day 11| | | | |
+| Day 12| | | | |
+| Day 13| | | | |
+| Day 14| | | | |
 
 ---
 ## Day 3 : Binary Diagnostic
