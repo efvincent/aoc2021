@@ -1,7 +1,7 @@
 module AOC.Challenge.Day09 (day09a, day09b) where
 
 import AOC.Solver ( (:~>)(..) )
-import Data.Map as M (Map, (!), fromList, fromList, keys)
+import Data.Map as M (Map, (!), fromList, keys)
 import Data.Set as S (Set, empty, insert, toList, member)
 import AOC.Prelude (catMaybes)
 import Data.List (sortBy)
@@ -58,7 +58,8 @@ solve1 Puzzle{_grid=g, _maxx=mx, _maxy=my} =
 -- point is not fillable, either because it's value is 9 or it has already been filled.
 -- Map the resulting set of @List Location@ (basins) to their lengths, sort them descending,
 -- take the product of the top 3. Note the use of @sortBy (comparing Down)@ is significantly
--- better performing than @sortOn Down@ - see 
+-- better performing than @sortOn Down@, especially in the lazy case like this one where we're
+-- only taking the top three largest from the sorted list. See a detailed explanation at 
 -- https://ro-che.info/articles/2016-04-02-descending-sort-haskell
 solve2 :: Puzzle -> Int
 solve2 puz@Puzzle{_maxx=mx, _maxy=my} =
