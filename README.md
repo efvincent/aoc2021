@@ -13,14 +13,16 @@ On to the Advent of Code 2021
 | Day 4 | Giant Squid                | [x](./prompt/04a.md) | [x](./prompt/04b.md) | [x](./src/AOC/Challenge/Day04.hs) |
 | Day 5 | Hydrothermal Venture       | [x](./prompt/05a.md) | [x](./prompt/05b.md) | [x](./src/AOC/Challenge/Day05.hs) |
 | Day 6 | Lanternfish                | [x](./prompt/06a.md) | [x](./prompt/06b.md) | [x](./src/AOC/Challenge/Day06.hs) |
-| Day 7 | The Treachery of Whales    | [x](./prompt/07a.md) | [x](./prompt/06b.md) | [x](./src/AOC/Challenge/Day07.hs) |
-| Day 8 | Seven Segment Search       | [x](./prompt/08a.md) | [x](./prompt/06b.md) | [x](./src/AOC/Challenge/Day08.hs) |
-| Day 9 | Smoke Basin                | [x](./prompt/09a.md) |                      | [x](./src/AOC/Challenge/Day09.hs) |
-| Day 10| | | | |
-| Day 11| | | | |
-| Day 12| | | | |
-| Day 13| | | | |
-| Day 14| | | | |
+| Day 7 | The Treachery of Whales    | [x](./prompt/07a.md) | [x](./prompt/07b.md) | [x](./src/AOC/Challenge/Day07.hs) |
+| Day 8 | Seven Segment Search       | [x](./prompt/08a.md) | [x](./prompt/08b.md) | [x](./src/AOC/Challenge/Day08.hs) |
+| Day 9 | Smoke Basin                | [x](./prompt/09a.md) | [x](./prompt/08b.md) | [x](./src/AOC/Challenge/Day09.hs) |
+| Day 10| Syntax Coloring            | | | |
+| Day 11| Dumbo Octopus              | | | |
+| Day 12| Passage Pathing            | | | |
+| Day 13| Transparent Origami        | | | |
+| Day 14| Extended Polymerization    | | | |
+| Day 15| Chiton                     | | | |
+| Day 16| Packet Decoder             | | | |
 
 ---
 ## Day 3 : Binary Diagnostic
