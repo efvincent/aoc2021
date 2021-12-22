@@ -68,7 +68,7 @@ pGrid g =
   where
     (maxx,maxy) = maxPt g
     (minx,miny) = minPt g
-    ls = map (\y -> map (\x -> if (x,y) `elem` g then '█' else ' ') [minx..maxx]) [miny..maxy]
+    ls = map (\y -> map (\x -> if (x,y) `elem` g then toEnum 9608 else ' ') [minx..maxx]) [miny..maxy]
 
 solve1 :: Puzzle -> Int
 solve1 (g, f:_)=
