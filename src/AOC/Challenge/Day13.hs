@@ -1,38 +1,99 @@
 {-# OPTIONS_GHC -Wno-unused-imports   #-}
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
+{-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
 
--- |
--- Module      : AOC.Challenge.Day13
--- License     : BSD3
---
--- Stability   : experimental
--- Portability : non-portable
---
--- Day 13.  See "AOC.Solver" for the types used in this module!
---
--- After completing the challenge, it is recommended to:
---
--- *   Replace "AOC.Prelude" imports to specific modules (with explicit
---     imports) for readability.
--- *   Remove the @-Wno-unused-imports@ and @-Wno-unused-top-binds@
---     pragmas.
--- *   Replace the partial type signatures underscores in the solution
---     types @_ :~> _@ with the actual types of inputs and outputs of the
---     solution.  You can delete the type signatures completely and GHC
---     will recommend what should go in place of the underscores.
+module AOC.Challenge.Day13 where -- (day13a, day13b) where
 
-module AOC.Challenge.Day13 (
-    -- day13a
-  -- , day13b
-  ) where
+import AOC.Solver ( (:~>)(..) )
+import Data.Set as S (Set, fromList, toList, member, empty, insert, union)
+import Data.List.Split (splitOn)
+import Data.Char (isLower)
+import Data.List (intercalate)
+import AOC.Util (strip)
 
-import           AOC.Prelude
+type Point = (Int,Int)
+type Grid = Set Point
+data Fold = X Int | Y Int deriving stock (Show, Eq, Ord)
+type Folds = [Fold]
+type Puzzle = (Grid, Folds)
 
-day13a :: _ :~> _
+foldy :: Int -> Grid -> Grid
+foldy fy g =
+  g' `S.union` fpts
+  where
+    gl = toList g
+    fpts = fromList . map (\(px,py) -> (px, fy - (py - fy))) . filter (\(_,py) -> py > fy) $ gl
+    g' = fromList . filter (\(_,py) -> py <= fy) $ gl
+
+foldx :: Int -> Grid -> Grid
+foldx fx g =
+  g' `S.union` fpts
+  where
+    gl = toList g
+    fpts = fromList . map (\(px,py) -> (fx - (px - fx), py)) . filter (\(px,_) -> px > fx) $ gl
+    g' = fromList . filter (\(px,_) -> px <= fx) $ gl
+
+parse :: String -> Puzzle
+parse s =
+  (fromList . map (\str -> let [x,y] = splitOn "," str in (read x, read y)) . splitOn "\n" $ s1
+  ,map (parseFold . drop 11) . splitOn "\n" $ s2)
+  where
+    [s1, s2] = map strip . splitOn "\n\n" $ s
+    parseFold sf =
+      let [axis,amt] = splitOn "=" sf in
+      case axis of
+        "x" -> X (read amt)
+        _   -> Y (read amt)
+
+maxPt :: Grid -> Point
+maxPt g =
+  let pts = toList g in
+  let mx = maximum (map fst pts) in
+  let my = maximum (map snd pts) in
+  (mx,my)
+
+minPt :: Grid -> Point
+minPt g =
+  let pts = toList g in
+  let mx = minimum (map fst pts) in
+  let my = minimum (map snd pts) in
+  (mx,my)  
+
+pPuz :: Puzzle -> IO ()
+pPuz (g,_) = pGrid g
+
+pGrid :: Grid -> IO ()
+pGrid g =
+  putStrLn (intercalate "\n" ls)
+  where
+    (maxx,maxy) = maxPt g
+    (minx,miny) = minPt g
+    ls = map (\y -> map (\x -> if (x,y) `elem` g then '#' else '.') [minx..maxx]) [miny..maxy]
+
+solve1 :: Puzzle -> Int
+solve1 (g, f:_)=
+  length . fn $ g
+  where
+    fn = case f of
+      X n -> foldx n
+      Y n -> foldy n
+solve1 _ = 0
+
+-- didn't work b/c you didn't "buffer out" the extents unless they had a point at the extents. Need
+-- to keep actual extents with the grid
+solve2 :: Puzzle -> Grid 
+solve2 (g, fs) =
+  foldr fn g fs
+  where
+    fn f = case f of 
+      X n -> foldx n
+      Y n -> foldy n
+
+day13a :: Puzzle :~> Int
 day13a = MkSol
-    { sParse = Just
+    { sParse = Just . parse
     , sShow  = show
-    , sSolve = Just
+    , sSolve = Just . solve1
     }
 
 day13b :: _ :~> _
