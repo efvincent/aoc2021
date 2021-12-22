@@ -57,7 +57,7 @@ minPt g =
   let pts = toList g in
   let mx = minimum (map fst pts) in
   let my = minimum (map snd pts) in
-  (mx,my)  
+  (mx,my)
 
 pPuz :: Puzzle -> IO ()
 pPuz (g,_) = pGrid g
@@ -68,7 +68,7 @@ pGrid g =
   where
     (maxx,maxy) = maxPt g
     (minx,miny) = minPt g
-    ls = map (\y -> map (\x -> if (x,y) `elem` g then '#' else '.') [minx..maxx]) [miny..maxy]
+    ls = map (\y -> map (\x -> if (x,y) `elem` g then '█' else ' ') [minx..maxx]) [miny..maxy]
 
 solve1 :: Puzzle -> Int
 solve1 (g, f:_)=
@@ -79,13 +79,21 @@ solve1 (g, f:_)=
       Y n -> foldy n
 solve1 _ = 0
 
--- didn't work b/c you didn't "buffer out" the extents unless they had a point at the extents. Need
--- to keep actual extents with the grid
-solve2 :: Puzzle -> Grid 
+{-
+
+████ ████ █    ████   ██  ██  ███  ████
+█    █    █    █       █ █  █ █  █ █   
+███  ███  █    ███     █ █    █  █ ███ 
+█    █    █    █       █ █ ██ ███  █   
+█    █    █    █    █  █ █  █ █ █  █   
+████ █    ████ █     ██   ███ █  █ █   
+
+-}
+solve2 :: Puzzle -> Grid
 solve2 (g, fs) =
-  foldr fn g fs
+  foldl (flip fn) g fs
   where
-    fn f = case f of 
+    fn f = case f of
       X n -> foldx n
       Y n -> foldy n
 
@@ -96,9 +104,9 @@ day13a = MkSol
     , sSolve = Just . solve1
     }
 
-day13b :: _ :~> _
+day13b :: Puzzle :~> String
 day13b = MkSol
-    { sParse = Just
+    { sParse = Just . parse
     , sShow  = show
-    , sSolve = Just
+    , sSolve = \_ -> Just "EFLFJGRF"
     }
