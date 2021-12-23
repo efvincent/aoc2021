@@ -1,35 +1,31 @@
-{-# OPTIONS_GHC -Wno-unused-imports   #-}
-{-# OPTIONS_GHC -Wno-unused-top-binds #-}
 {-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
-{-# OPTIONS_GHC -Wno-unused-matches #-}
-{-# OPTIONS_GHC -Wno-name-shadowing #-}
-{-# OPTIONS_GHC -Wno-incomplete-patterns #-}
-{-# OPTIONS_GHC -Wno-unused-local-binds #-}
 
-module AOC.Challenge.Day14 where -- (day14a, day14b) where
+module AOC.Challenge.Day14 (day14a, day14b) where
 
-import AOC.Solver ( (:~>)(..) ) 
+import AOC.Solver ( (:~>)(..) )
 import qualified Data.Map as M (Map, (!), (!?), empty, findWithDefault, insert, fromList, map, toList)
 import Data.List.Split (splitOn)
-import AOC.Util (strip, traceShowIdMsg)
-import AOC.Prelude (traceShowId)
+import AOC.Util (strip)
 import Data.List (sort)
-import Data.Map (toList)
 
 type Pair = (Char,Char)
-type Rule = (Pair, (Pair, Pair))
 type Rules = M.Map Pair (Pair, Pair)
 type PairCounts = M.Map Pair (Int, Int)    -- fst -> this step, snd -> next step
-type Puzzle = (Rules, PairCounts)
+type CharCounts = M.Map Char Int
+type Puzzle = (Rules, PairCounts, CharCounts)
 
-pairs :: [a] -> [(a, a)]
-pairs xs = zip xs (tail xs)
+bumpCount :: (Ord k) => Int -> k -> M.Map k Int -> M.Map k Int
+bumpCount n k m =
+  case m M.!? k of
+    Just x  -> M.insert k (n+x) m
+    Nothing -> M.insert k n m
 
 parse :: String -> Puzzle
 parse s =
-  let ps = pairs seed in 
-  let pcs = foldr addCount M.empty ps in 
-  (M.fromList rules, pcs)
+  let ps = zip seed (tail seed) in
+  let cCounts = foldr (bumpCount 1) M.empty seed in
+  let pcs = foldr addCount M.empty ps in
+  (M.fromList rules, pcs, cCounts)
   where
     [seed,rawRules] = map strip . splitOn "\n\n" $ s
     mkRule r =
@@ -40,71 +36,43 @@ parse s =
     addCount pair pairCounts =
       case pairCounts M.!? pair of
         Just (this,next) -> M.insert pair (this+1,next) pairCounts
-        Nothing -> M.insert pair (0, 1) pairCounts
-
-getCounts :: Puzzle -> [(Char,Int)]
-getCounts (_,pairCountMap) = 
-  let pairCounts = M.toList pairCountMap in
-  let charCounts = filter (\(_,c) -> c > 0) . concatMap (\((l,r),(c,_)) -> [(l,c),(r,c)]) $ pairCounts in
-  M.toList 
-  . foldr (
-      \(c,n) acc -> 
-        let cur = M.findWithDefault 0 c acc in 
-        M.insert c (cur+n) acc) 
-      M.empty $ charCounts
-
-run :: Int -> Puzzle -> Puzzle
-run c puz = 
-  foldr (\_ puzzle -> step puzzle) puz [1..c]
+        Nothing -> M.insert pair (1, 0) pairCounts
 
 step :: Puzzle -> Puzzle
-step (rules, pairCounts) =
-  (rules, go (M.toList pairCounts) pairCounts)
+step puz@(_, pairCounts, _) =
+  let curPairCounts = M.toList pairCounts in
+  go curPairCounts puz
   where
-    go :: [(Pair, (Int, Int))] -> PairCounts -> PairCounts     
-    go ((curPair,(this,next)):pcs) pc | this > 0 =       
-      -- this pair is used this turn
-      -- look up the two related pairs from the rules
-      -- increment both of their "next" turns to += the "this" count
-      -- then increment this pair's current count to zero
-      let (l,r) = rules M.! curPair in 
-      let (_,lnext) = M.findWithDefault (0,0) l pc in 
-      let (_,rnext) = M.findWithDefault (0,0) r pc in
+    go :: [(Pair, (Int, Int))] -> Puzzle -> Puzzle
+    go ((curPair,(curCount,_)):pcs) (rules,pc,cCounts) | curCount > 0 =
+      -- identified a pair that has occurences this iteration
+      -- look up in the rules the two pairs generated from this pair
+      -- increment both of their "next" turns to += the "curCount"
+      -- Add curCount instances of this pairs "addedChar" to the cCounts.
+      let (leftPair@(_,addedChar),rightPair) = rules M.! curPair in
+      let (_,lnext) = M.findWithDefault (0,0) leftPair  pc in
+      let (_,rnext) = M.findWithDefault (0,0) rightPair pc in
+      let cCounts' = bumpCount curCount addedChar cCounts in
       let pc' =
-            M.insert l (0,lnext + this) .
-            M.insert r (0,rnext + this) $ pc in
-      let (_,next') = pc M.! curPair in
-      let pc'' = M.insert curPair (0,next') pc' in
-      go pcs pc'
+            M.insert leftPair  (0,lnext + curCount) .
+            M.insert rightPair (0,rnext + curCount) $ pc in
+      go pcs (rules, pc', cCounts')
     go (_:pcs) pc = go pcs pc
-    go [] pc = M.map (\(this,next) -> (next,this)) pc 
-      
-hist :: String -> M.Map Char Int
-hist = go M.empty
-  where
-    go h [] = h
-    go h (c:cs) = 
-      case h M.!? c of
-        Just n -> go (M.insert c (succ n) h) cs
-        Nothing -> go (M.insert c 1 h) cs
+    go [] (rules, finalPairCounts, charCounts) =
+      let nextPairCounts = M.map (\(_,next) -> (next,0)) finalPairCounts in
+      (rules, nextPairCounts, charCounts)
 
--- run :: Int -> Puzzle -> String
--- run steps (rules,seed) = 
---   foldr go seed [1..steps]
---   where
---     go _ s =
---       step (rules, s)
+ans :: Int -> Puzzle -> Int
+ans numSteps puz =
+  let (_,_,cCounts) = foldr (\_ puzzle -> step puzzle) puz [1..numSteps] in
+  let hist = sort . map snd . M.toList $ cCounts in
+  last hist - head hist
 
-day14a :: _ :~> _
-day14a = MkSol
-    { sParse = Just
-    , sShow  = show
-    , sSolve = Just
-    }
+day14x :: Int -> Puzzle :~> Int 
+day14x n = MkSol { sParse = Just . parse, sShow = show, sSolve = Just . ans n }
+
+day14a :: Puzzle :~> Int
+day14a = day14x 10
 
 day14b :: _ :~> _
-day14b = MkSol
-    { sParse = Just
-    , sShow  = show
-    , sSolve = Just
-    }
+day14b = day14x 40
