@@ -27,14 +27,14 @@ solve g =
 
 parse :: Int -> String -> Grid
 parse factor s =
-  let verts  =
+  let verticies  =
         map (second (subtract 48 . fromEnum))                   -- interpret the values as natural numbers
         . concatMap (\(y, xs) -> map (\(x,v) -> ((x,y), v)) xs)   -- rearrange coords into vertex and flatten
         . zip [0..]                                               -- then prepend the y coord to each line
         . map (zip [0..])                                         -- prepend the x coordinate to each digit
         . lines $ s                                               -- for each line
         in
-  let vertMap = M.fromList verts in
+  let vertMap = M.fromList verticies in
   let (mx,my) = maximum . M.keys $ vertMap in
   (vertMap, (mx,my), (((mx + 1) * factor) - 1, ((my + 1) * factor) - 1))
 
