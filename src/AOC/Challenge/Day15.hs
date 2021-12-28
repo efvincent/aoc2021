@@ -1,16 +1,11 @@
-{-# OPTIONS_GHC -Wno-unused-imports   #-}
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
-
-module AOC.Challenge.Day15 where -- (day15a, day15b) where
+module AOC.Challenge.Day15 (day15a, day15b) where
 
 import AOC.Solver ( (:~>)(..) )
 import qualified Data.HashPSQ as PQ (HashPSQ, insert, empty, minView, null, toList)
-import System.IO (openFile, IOMode (ReadMode), hGetContents)
 import Data.Bifunctor ( Bifunctor(second) )
-import qualified Data.Map as M (Map, empty, insert, fromList, keys, (!), lookup, toList)
+import qualified Data.Map as M (Map, empty, insert, fromList, keys, (!), lookup)
 import Data.Hashable (Hashable)
-import AOC.Prelude (traceId, traceShowId)
-import Data.List (intercalate)
 
 type Vertex = (Int,Int)
 type VertexCosts = M.Map Vertex Cost
@@ -34,9 +29,6 @@ type Path = ([Vertex], Cost)
 
 end :: Path -> Vertex
 end = head . fst
-
-cost :: Path -> Cost
-cost = snd
 
 extract :: Path -> Path
 extract (vs,c) = (reverse vs, c)
@@ -93,17 +85,9 @@ astar g h isGoal source = asearch M.empty start
     add (v:_, c) vcmap = M.insert v c vcmap
     add _ vcmap = vcmap
 
-solve1 :: Grid -> Int
-solve1 g =
-  case astar graph heuristic (== goal g) (0, 0) of
-    Nothing -> 0
-    Just (_,totalCost) -> totalCost
-  where
-    (gx,gy) = goal g
-    heuristic = \(x,y) -> (gx - x) + (gy - y)
-    graph v = nextTo v g
+solve1 :: Grid -> Maybe Cost
+solve1 g = snd <$> solve g
 
--- solve :: Grid -> Int
 solve :: Grid -> Maybe Path
 solve g =
   astar graph heuristic (== goal g) (0, 0)
@@ -128,14 +112,15 @@ parse factor s =
 mGet :: Grid -> Vertex -> (Vertex, Cost)
 mGet g v@(x,y) = (v,c)
   where
-    m = costMap g
     (mx,my) = maxs g
-    wrap cst | cst <= 9 = cst | otherwise = cst `mod` 9
-    offx = x `mod` (mx + 1)
-    costx = x `div` (mx + 1)
-    offy = y `mod` (my + 1)
-    costy = y `div` (my + 1)
-    c = wrap $ (m M.! (offx,offy)) + costx + costy
+    wrap cst 
+      | cst <= 9 = cst 
+      | otherwise = cst `mod` 9
+    c = wrap $                                  -- wrap the risk level between 1..9
+      ( costMap g M.! ( x `mod` (mx + 1)        -- find the cost at the "wrapped" coordinate
+                      , y `mod` (my + 1) ) ) 
+      + (x `div` (mx + 1))                      -- add the extr costs of mulitple x and y coords
+      + (y `div` (my + 1))
 
 nextTo :: Vertex -> Grid -> [(Vertex, Cost)]
 nextTo (vx,vy) g =
@@ -152,17 +137,12 @@ pGrid g =
   where
     (maxx,maxy) = goal g
     ls = map (\y -> concatMap (\x -> show . snd . mGet g $ (x,y)) [0..maxx]) [0..maxy]
-    
+
+day15x :: Int -> Grid :~> Int
+day15x n = MkSol { sParse = Just . parse n, sShow = show, sSolve = solve1 }    
+
 day15a :: Grid :~> Int
-day15a = MkSol
-    { sParse = Just . parse 1
-    , sShow  = show
-    , sSolve = Just . solve1
-    }
+day15a = day15x 1
 
 day15b :: _ :~> _
-day15b = MkSol
-    { sParse = Just . parse 5
-    , sShow  = show
-    , sSolve = Just . solve1
-    }
+day15b = day15x 5
