@@ -7,6 +7,15 @@ import AOC.Solver ( (:~>)(..) )
 import Data.Bifunctor ( Bifunctor(second) )
 import qualified Data.Map as M (fromList, keys, (!))
 
+data Packet = Packet 
+  { _ver :: Int
+  , _typeId :: Int }
+
+data Kind = Literal Int
+          | Operator Op [Packet]
+
+data Op = Unnknown 
+
 day16a :: _ :~> _
 day16a = MkSol
     { sParse = Just
