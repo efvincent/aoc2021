@@ -1,16 +1,12 @@
-{-# OPTIONS_GHC -Wno-unused-imports   #-}
-{-# OPTIONS_GHC -Wno-unused-top-binds #-}
-{-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 {-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
 
-module AOC.Challenge.Day16 where -- (day16a, day16b) where
+module AOC.Challenge.Day16 (day16a, day16b) where
 
 import AOC.Solver ( (:~>)(..) )
 import AOC.Common (bToi)
-import qualified Data.Map as M (fromList, keys, (!))
 import Numeric (readHex)
 import Text.Printf (printf)
-import Data.Bifunctor (first, second)
+import Data.Bifunctor (first)
 
 type Bits = [Bool]
 
@@ -38,15 +34,15 @@ Solutions
 -}
 
 -- | Sum the version numbers in packets and their sub packets
-sumVersions :: [Packet] -> Int -> Int
-sumVersions [] acc = acc
-sumVersions (p:pkts) acc = 
+sumVersions :: Int -> [Packet] -> Int
+sumVersions acc [] = acc
+sumVersions acc (p:pkts) = 
   let acc' = acc + _ver p in
   let curSum =
         case _kind p of
         Literal _ -> acc'
-        Operator _ subPackets -> sumVersions subPackets acc' in
-  sumVersions pkts curSum    
+        Operator _ subPackets -> sumVersions acc' subPackets in
+  sumVersions curSum pkts    
 
 eval :: Packet -> Int 
 eval p =
@@ -56,8 +52,8 @@ eval p =
   where
     evalOp vals Sum     = sum vals
     evalOp vals Product = product vals
-    evalOp vals Min = minimum vals
-    evalOp vals Max = maximum vals
+    evalOp vals Min     = minimum vals
+    evalOp vals Max     = maximum vals
     evalOp vals Greater = let [v1,v2] = vals in if v1 >  v2 then 1 else 0
     evalOp vals Less    = let [v1,v2] = vals in if v1 <  v2 then 1 else 0
     evalOp vals Equal   = let [v1,v2] = vals in if v1 == v2 then 1 else 0
@@ -66,7 +62,7 @@ day16x :: (Packet -> Int) -> Packet :~> Int
 day16x fn = MkSol { sParse = Just . parse, sShow  = show, sSolve = Just . fn }
 
 day16a :: Packet :~> Int
-day16a = day16x (\p -> sumVersions [p] 0)
+day16a = day16x $ sumVersions 0 . (:[])
 
 day16b :: Packet :~> Int
 day16b = day16x eval
@@ -91,6 +87,7 @@ parsePacket ver 4 rest =
     getLiteral acc (cont:b1:b2:b3:b4:bs) = 
       let acc' = (acc ++ [b1, b2, b3, b4]) in
       if cont then getLiteral acc' bs else (acc',bs)
+    getLiteral _ _ = error "invalid input"
 parsePacket ver typ rest =
   if lt then
     -- next 11 bits contain the number of sub-packets to expect
@@ -126,9 +123,6 @@ parsePacket ver typ rest =
 Utility functions
 -}
 
-showBin :: Bits -> String
-showBin = map (\b -> if b then '1' else '0')
-
 getOpType :: Int -> Op
 getOpType 0 = Sum
 getOpType 1 = Product
@@ -137,6 +131,7 @@ getOpType 3 = Max
 getOpType 5 = Greater
 getOpType 6 = Less
 getOpType 7 = Equal
+getOpType n = error $ "invalid operator type value " ++ show n
 
 binToInt :: Bits -> Int
 binToInt = bToi . reverse
