@@ -1,10 +1,7 @@
 module AOC.Challenge.Day03 (day03a, day03b) where
 
 import AOC.Solver ((:~>) (..))
-
--- | converts a list of bools interpreted as a binary number into an Int
-bToi :: [Bool] -> Int
-bToi = foldr (\bit acc -> fromEnum bit + 2 * acc) 0
+import AOC.Common (bToi)
 
 -- | returns the number of elements needed to make a majority in a list
 majority :: [_] -> Int
