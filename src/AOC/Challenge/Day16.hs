@@ -7,6 +7,7 @@ import AOC.Common (bToi)
 import Numeric (readHex)
 import Text.Printf (printf)
 import Data.Bifunctor (first)
+import Data.List (intercalate)
 
 type Bits = [Bool]
 
@@ -36,17 +37,17 @@ Solutions
 -- | Sum the version numbers in packets and their sub packets
 sumVersions :: Int -> [Packet] -> Int
 sumVersions acc [] = acc
-sumVersions acc (p:pkts) = 
+sumVersions acc (p:pkts) =
   let acc' = acc + _ver p in
   let curSum =
         case _kind p of
         Literal _ -> acc'
         Operator _ subPackets -> sumVersions acc' subPackets in
-  sumVersions curSum pkts    
+  sumVersions curSum pkts
 
-eval :: Packet -> Int 
+eval :: Packet -> Int
 eval p =
-  case _kind p of 
+  case _kind p of
     Literal n -> n
     Operator op pkts -> evalOp (map eval pkts) op
   where
@@ -84,14 +85,14 @@ parsePacket ver 4 rest =
   (Packet ver 4 (Literal $ binToInt value), remainder)
   where
     getLiteral :: Bits -> Bits -> (Bits, Bits)
-    getLiteral acc (cont:b1:b2:b3:b4:bs) = 
+    getLiteral acc (cont:b1:b2:b3:b4:bs) =
       let acc' = (acc ++ [b1, b2, b3, b4]) in
       if cont then getLiteral acc' bs else (acc',bs)
     getLiteral _ _ = error "invalid input"
 parsePacket ver typ rest =
   if lt then
     -- next 11 bits contain the number of sub-packets to expect
-    let (packetCount, postLenBits) = first binToInt . splitAt 11 $ rest' in 
+    let (packetCount, postLenBits) = first binToInt . splitAt 11 $ rest' in
     let (packets,remaining) = takePackets packetCount postLenBits [] in
     (Packet ver typ (Operator (getOpType typ) packets), remaining)
   else
@@ -101,7 +102,7 @@ parsePacket ver typ rest =
     let packets = consume subBits [] in
     (Packet ver typ (Operator (getOpType typ) packets), postSubBits)
   where
-    (lt:rest') = rest 
+    (lt:rest') = rest
     takePackets :: Int -> Bits -> [Packet] -> ([Packet], Bits)
     takePackets pcount bits pkts
       | pcount == 0 = (reverse pkts, bits)
@@ -117,7 +118,7 @@ parsePacket ver typ rest =
     parseBits bits =
       let (v, bits') = first (binToInt . padBin 4) . splitAt 3 $ bits in
       let (t, bits'') = first (binToInt . padBin 4) . splitAt 3 $ bits' in
-      parsePacket v t bits''     
+      parsePacket v t bits''
 
 {-
 Utility functions
@@ -135,7 +136,7 @@ getOpType n = error $ "invalid operator type value " ++ show n
 
 binToInt :: Bits -> Int
 binToInt = bToi . reverse
-    
+
 decodeHex :: String -> Bits
 decodeHex = concatMap decode
   where
@@ -145,8 +146,8 @@ decodeHex = concatMap decode
         (x,_):_ -> map (== '1') . printf "%04b" $ (x::Int)
         _       -> error "Invalid input"
 
-padBin :: Int -> Bits -> Bits 
+padBin :: Int -> Bits -> Bits
 padBin n bin =
-  case n - length bin of 
+  case n - length bin of
     diff | diff > 0 -> replicate diff False ++ bin
     _ -> bin

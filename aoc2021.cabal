@@ -50,6 +50,7 @@ common common-options
                      , parser-combinators
                      , profunctors
                      , psqueues
+                     , regex-tdfa
                      , split
                      , tagsoup
                      , template-haskell

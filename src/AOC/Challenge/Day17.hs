@@ -1,32 +1,24 @@
 {-# OPTIONS_GHC -Wno-unused-imports   #-}
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
+{-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
+{-# OPTIONS_GHC -Wno-missing-export-lists #-}
 
--- |
--- Module      : AOC.Challenge.Day17
--- License     : BSD3
---
--- Stability   : experimental
--- Portability : non-portable
---
--- Day 17.  See "AOC.Solver" for the types used in this module!
---
--- After completing the challenge, it is recommended to:
---
--- *   Replace "AOC.Prelude" imports to specific modules (with explicit
---     imports) for readability.
--- *   Remove the @-Wno-unused-imports@ and @-Wno-unused-top-binds@
---     pragmas.
--- *   Replace the partial type signatures underscores in the solution
---     types @_ :~> _@ with the actual types of inputs and outputs of the
---     solution.  You can delete the type signatures completely and GHC
---     will recommend what should go in place of the underscores.
+module AOC.Challenge.Day17 where -- (day17a, day17b) where
 
-module AOC.Challenge.Day17 (
-    -- day17a
-  -- , day17b
-  ) where
+import AOC.Solver ( (:~>)(..) )
+import Text.Regex.TDFA ( (=~), AllTextMatches(getAllTextMatches))
+import Data.List.Split (splitOn)
 
-import           AOC.Prelude
+type Point = (Int,Int)
+type Puzzle = (Point, Point)
+
+parse :: String -> Puzzle
+parse s =
+  let [sx, sy] = getAllTextMatches (s =~ "(-?[0-9]+)..(-?[0-9]+)") in
+  (toPair sx, toPair sy)
+  where
+    toPair :: String -> Point
+    toPair str = let [s1,s2] = map read . splitOn ".." $ str in (s1,s2)
 
 day17a :: _ :~> _
 day17a = MkSol
