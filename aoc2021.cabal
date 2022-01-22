@@ -162,8 +162,6 @@ library
       Paths_aoc2021
   hs-source-dirs:
       src
-  other-modules:
-      Paths_aoc2021
 
 executable aoc2021
   import: common-options
